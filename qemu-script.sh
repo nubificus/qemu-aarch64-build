@@ -5,12 +5,10 @@ export QEMU_AUDIO_DRV=none
 export OCL_DEV_TYPE=1
 
 smp=1
-#cpu=host
-cpu=cortex-a57
+cpu=host
 ram=256
 
-#machine="virt,accel=kvm"
-machine="virt"
+machine="virt,accel=kvm"
 kernel="-kernel Image"
 dtb=""
 rootfs=rootfs.img
