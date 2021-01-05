@@ -16,7 +16,8 @@ FROM linux-builder as virtio-builder
 # get virtio-accel source
 ARG TOKEN
 WORKDIR /
-RUN git clone https://${TOKEN}:x-oauth-basic@github.com/cloudkernels/virtio-accel
+RUN git clone https://${TOKEN}:x-oauth-basic@github.com/cloudkernels/virtio-accel && \
+	cd virtio-accel && git checkout c34ca66ae0ef6f2c907e957351d135cfb6e24900
 
 # build virtio-accel
 WORKDIR /virtio-accel
