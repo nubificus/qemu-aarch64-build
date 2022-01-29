@@ -2,7 +2,9 @@
 
 export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
 export QEMU_AUDIO_DRV=none
-export OCL_DEV_TYPE=1
+export VACCEL_BACKENDS=/usr/local/lib/libvaccel-jetson.so
+export VACCEL_IMAGENET_NETWORKS=/data/networks
+#export VACCEL_DEBUG_LEVEL=4
 
 smp=1
 cpu=host
@@ -21,6 +23,7 @@ mkdir -p networks
 if [[ ! -f networks/.downloaded ]]; then
 	/usr/local/share/jetson-inference/tools/download-models.sh
 	[[ $? -eq 0 ]] && touch networks/.downloaded
+	cp -r /usr/local/bin/networks/* networks/
 fi
 
 fsck.ext4 -fy $rootfs 1>/dev/null 2>&1
@@ -32,5 +35,5 @@ TERM=linux qemu-system-aarch64 \
 	-fsdev local,id=fsdev0,path=/data/data,security_model=none \
 	-device virtio-9p-pci,fsdev=fsdev0,mount_tag=data \
 	-device virtio-rng-pci \
-	-object acceldev-backend-generic,id=gen0 \
-	-device virtio-accel-pci,id=accel0,generic=gen0
+	-object acceldev-backend-vaccelrt,id=rt0 \
+	-device virtio-accel-pci,id=accel0,runtime=rt0
