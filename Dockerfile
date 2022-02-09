@@ -56,13 +56,16 @@ RUN apt-get update && \
 		libcap-ng-dev \
 		libattr1-dev \
 		$(apt-get -s build-dep qemu | egrep ^Inst | fgrep '[all]' | cut -d\  -f2) \
+		cargo \
+		libclang-dev \
+		clang \
 	&& rm -rf /var/lib/apt/lists/*
 
 ARG TOKEN
 # Build & install vaccelrt
 RUN git clone https://${TOKEN}:x-oauth-basic@github.com/nubificus/vaccelrt-plugin-jetson vaccelrt && \
 	cd vaccelrt && git submodule update --init && \
-	cd vaccelrt && git submodule update --init && \
+	cd vaccelrt && git checkout feat_profiling && git submodule update --init && \
 	mkdir build && cd build && \
 	cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_EXAMPLES=ON .. && \
 	make install && cd ../.. && mkdir build && cd build && \
@@ -79,6 +82,14 @@ RUN git clone https://${TOKEN}:x-oauth-basic@github.com/cloudkernels/qemu-vaccel
 	./configure --target-list=aarch64-softmmu --enable-virtfs && \
 	make -j$(nproc) && make install && \
 	cd .. && rm -rf qemu-vaccel
+
+# Build & install vaccelrt agent
+RUN git clone -b feat_tf_delete_session \
+	https://${TOKEN}:x-oauth-basic@github.com/cloudkernels/vaccelrt-agent && \
+	cd vaccelrt-agent && \
+	cargo build && \
+	cp $(find -name "vaccelrt-agent") /usr/local/bin/ && \
+	cd .. && rm -rf vaccelrt*
 
 COPY qemu-ifup /etc/qemu-ifup
 COPY qemu-script.sh /run.sh
