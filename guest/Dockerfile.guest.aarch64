@@ -42,30 +42,30 @@ RUN apt-get update && apt-get install -y build-essential git cmake cargo libclan
 
 WORKDIR /
 COPY --from=virtio-builder /virtio-accel /virtio-accel
-RUN git clone https://${TOKEN}:x-oauth-basic@github.com/nubificus/vaccelrt-plugin-virtio && \
+RUN git clone -b update_image_ops \
+	https://${TOKEN}:x-oauth-basic@github.com/nubificus/vaccelrt-plugin-virtio &&  \
 	cd vaccelrt-plugin-virtio && git submodule update --init && \
 	cd vaccelrt && git submodule update --init && cd .. && \
 	rm -rf virtio-accel && mv /virtio-accel ./ && \
 	mkdir build && cd build && \
 	cmake -DCMAKE_INSTALL_PREFIX=/usr/local .. && make install && \
-	cd ../.. && rm -rf vaccelrt*
+	cd ../.. && rm -rf vaccelrt-plugin-virtio
 
-RUN git clone https://${TOKEN}:x-oauth-basic@github.com/nubificus/vaccelrt-plugin-vsock && \
+RUN git clone -b update_image_ops \
+	https://${TOKEN}:x-oauth-basic@github.com/nubificus/vaccelrt-plugin-vsock && \
 	cd vaccelrt-plugin-vsock && git submodule init && \
 	git config submodule.vaccel-client.url https://${TOKEN}:x-oauth-basic@github.com/nubificus/vaccel-client.git && \
-	git submodule update --recursive --remote && \
+	git submodule update && \
 	cd vaccelrt && git submodule update --init && \
 	mkdir build && cd build && \
 	cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_EXAMPLES=ON .. && \
 	make install && cd ../.. && mkdir build && cd build && \
 	cmake -DCMAKE_INSTALL_PREFIX=/usr/local .. && make install && \
-	cd ../.. && rm -rf vaccelrt*
+	cd ../.. && rm -rf vaccelrt-plugin-vsock
 
 RUN echo "export VACCEL_BACKENDS=/usr/local/lib/libvaccel-virtio.so" >> /root/.bashrc && \
 	echo "/usr/local/lib" >> /etc/ld.so.conf.d/vaccel.conf && \
 	echo "/sbin/ldconfig" >> /root/.bashrc
-
-RUN apt-get purge -y libclang-dev cargo && apt-get autoremove -y
 
 FROM scratch as artifacts
 COPY /create_rootfs.sh /

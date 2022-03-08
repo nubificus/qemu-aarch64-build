@@ -14,7 +14,7 @@ machine="virt,accel=kvm"
 kernel="-kernel Image"
 dtb=""
 rootfs=rootfs.img
-cmdline="rw root=/dev/vda mem=${ram}M"
+cmdline="rw root=/dev/vda "
 stderr=run/stderr.log
 extra_args=
 cid=
@@ -40,7 +40,7 @@ while getopts 'c:m:r:a:s:v:n' opt; do
 			;;
 		a)
 			# VM kernel command line append
-			cmdline+="${OPTARG}"
+			cmdline+="${OPTARG} "
 			;;
 		s)
 			# QEMU output to socket
@@ -69,6 +69,8 @@ while getopts 'c:m:r:a:s:v:n' opt; do
 			;;
 	esac
 done
+
+cmdline+="mem=${ram}M "
 
 mkdir -p networks
 if [[ ! -f networks/.downloaded ]]; then
