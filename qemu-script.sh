@@ -2,9 +2,9 @@
 
 export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
 export QEMU_AUDIO_DRV=none
-export VACCEL_BACKENDS=/usr/local/lib/libvaccel-jetson.so
-export VACCEL_IMAGENET_NETWORKS=/data/networks
-#export VACCEL_DEBUG_LEVEL=4
+export VACCEL_BACKENDS="${VACCEL_BACKENDS:=/usr/local/lib/libvaccel-jetson.so}"
+export VACCEL_IMAGENET_NETWORKS="${VACCEL_IMAGENET_NETWORK:=/data/networks}"
+export VACCEL_DEBUG_LEVEL="${VACCEL_DEBUG_LEVEL:=4}"
 
 smp=1
 cpu=host
@@ -21,7 +21,7 @@ cid=
 
 cd /data
 mkdir -p run
-while getopts 'c:m:r:a:s:v:n' opt; do
+while getopts 'c:m:r:a:s:v:n:' opt; do
 	case $opt in
 		c)
 			# VM vCPUs
@@ -40,7 +40,7 @@ while getopts 'c:m:r:a:s:v:n' opt; do
 			;;
 		a)
 			# VM kernel command line append
-			cmdline+="${OPTARG} "
+			cmdline+="${OPTARG}"
 			;;
 		s)
 			# QEMU output to socket
@@ -53,7 +53,8 @@ while getopts 'c:m:r:a:s:v:n' opt; do
 			;;
 		n)
 			# VM w/ network
-			extra_args+="-netdev type=tap,id=net0 -device virtio-net,netdev=net0 "
+			[[ -z "${OPTARG}" ]] && mac="52:54:00:12:34:01" || mac="${OPTARG}"
+			extra_args+="-netdev type=tap,id=net0 -device virtio-net,netdev=net0,mac=${mac} "
 			;;
 		v)
 			# VM w/ vsock
@@ -69,8 +70,7 @@ while getopts 'c:m:r:a:s:v:n' opt; do
 			;;
 	esac
 done
-
-cmdline+="mem=${ram}M "
+cmdline+="mem=${ram}M"
 
 mkdir -p networks
 if [[ ! -f networks/.downloaded ]]; then
