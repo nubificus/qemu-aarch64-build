@@ -60,16 +60,17 @@ jobs:
         mc alias set nbfc-rook https://s3.nubificus.co.uk $NBFC_S3_ACCESS $NBFC_S3_SECRET
         mc cp Image rootfs.img nbfc-rook/nbfc-assets/github/qemu-aarch64-guest/${{ github.sha }}/
 
-  image:
-    runs-on: [aarch64]
+        # this cannot be run with DinD as the nvidia-container runtime is needed
+        #image:
+        #runs-on: [aarch64]
 
-    steps:
-    - uses: actions/checkout@v2
-    - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@3.02
-      with:
-        name:  nubificus/vaccel-qemu
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        buildargs: TOKEN=${{ secrets.NBFC_BUILDER_TOKEN }}
-        tags: aarch64
+        #steps:
+        #- uses: actions/checkout@v2
+        #- name: Publish to Registry
+        #uses: elgohr/Publish-Docker-Github-Action@3.02
+        #with:
+        #name:  nubificus/vaccel-qemu
+        #username: ${{ secrets.DOCKER_USERNAME }}
+        #password: ${{ secrets.DOCKER_PASSWORD }}
+        #buildargs: TOKEN=${{ secrets.NBFC_BUILDER_TOKEN }}
+        #tags: aarch64
