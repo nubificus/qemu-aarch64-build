@@ -42,7 +42,7 @@ RUN apt-get --allow-releaseinfo-change update && apt-get install -y build-essent
 
 WORKDIR /
 COPY --from=virtio-builder /virtio-accel /virtio-accel
-RUN git clone -b update_image_ops \
+RUN git clone \
 	https://${TOKEN}:x-oauth-basic@github.com/nubificus/vaccelrt-plugin-virtio &&  \
 	cd vaccelrt-plugin-virtio && git submodule update --init && \
 	cd vaccelrt && git submodule update --init && cd .. && \
@@ -51,7 +51,7 @@ RUN git clone -b update_image_ops \
 	cmake -DCMAKE_INSTALL_PREFIX=/usr/local .. && make install && \
 	cd ../.. && rm -rf vaccelrt-plugin-virtio
 
-RUN git clone -b update_image_ops \
+RUN git clone \
 	https://${TOKEN}:x-oauth-basic@github.com/nubificus/vaccelrt-plugin-vsock && \
 	cd vaccelrt-plugin-vsock && git submodule init && \
 	git config submodule.vaccel-client.url https://${TOKEN}:x-oauth-basic@github.com/nubificus/vaccel-client.git && \
