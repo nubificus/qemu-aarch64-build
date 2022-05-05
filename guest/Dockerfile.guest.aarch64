@@ -22,9 +22,9 @@ RUN git clone https://${TOKEN}:x-oauth-basic@github.com/cloudkernels/virtio-acce
 WORKDIR /virtio-accel
 RUN make modules modules_install KDIR=/linux INSTALL_MOD_PATH=/modules
 
-FROM ubuntu:latest as rootfs-builder
+FROM ubuntu:20.04 as rootfs-builder
 COPY --from=virtio-builder /modules/* /lib/
-RUN apt-get update && apt-get -y install init udev kmod \
+RUN apt-get --allow-releaseinfo-change update && apt-get -y install init udev kmod \
 	isc-dhcp-client ifupdown iproute2 iputils-ping gcc-7 strace vim socat net-tools && \
 	apt-get clean
 RUN sed s/root\:x\:/root\:\:/ -i /etc/passwd && \
@@ -37,7 +37,7 @@ RUN echo "virtio_accel" > /lib/modules-load.d/virtio_accel.conf
 # build vaccelrt
 FROM rootfs-builder as vaccelrt-builder
 ARG TOKEN
-RUN apt-get update && apt-get install -y build-essential git cmake cargo libclang-dev && \
+RUN apt-get --allow-releaseinfo-change update && apt-get install -y build-essential git cmake cargo libclang-dev && \
 	apt-get clean
 
 WORKDIR /
